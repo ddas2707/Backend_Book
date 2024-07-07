@@ -4,5 +4,6 @@ conf();
 const _config ={
     port : process.env.PORT || 3000,
     databaseUrl : process.env.MONGODB_URL,
+    env : process.env.NODE_ENV,
 }
 export const config = Object.freeze(_config) // freeze as such it is read-only
