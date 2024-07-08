@@ -4,6 +4,7 @@ import { config } from './config/config';
 import globalErrorHanlder from './middlewares/globalErrorHandlers';
 import userRouter from './user/userRouter';
 const app = express();
+app.use(express.json())
 
 app.get('/',(req,res,next)=>{
     res.json({message:'Welcome to ebook apis'})
