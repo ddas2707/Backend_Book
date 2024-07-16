@@ -1,7 +1,9 @@
 import { NextFunction, Request, Response } from "express";
 import createHttpError from "http-errors";
-import bcrypt from 'bcrypt'
+import bcrypt from 'bcrypt';
 import userModel from "./userModel";
+import {sign} from "jsonwebtoken" 
+import { config } from "../config/config";
 
 const createUser = async(req:Request,res:Response,next:NextFunction)=>{
     const {name,email,password} = req.body;
@@ -18,11 +20,22 @@ const createUser = async(req:Request,res:Response,next:NextFunction)=>{
         return next(error)
     }
 
-    //Password --->hashed password
+    //Password ---> hashed password
     const hashedPassword = await bcrypt.hash(password,10) //since hash method returns a promise we need to wrap up in async-await
+    // 10 is the salt rounds more --> more security but slows down cpu
+    const newUser = await userModel.create({
+        name,
+        email,
+        password:hashedPassword,
+    })
+
+    //token generation jwt
+    const token = sign({sub:newUser._id},config.jwtSecret as string,{expiresIn:'7d'})    //sub property should be user id
+    // if u want to add any specific algorithm for encryption then write inside {} after 7d',......
+
 
     //Response
-    res.json({message:"User Created"})
+    res.json({accesstoken:token});
 }
 
 export default createUser;

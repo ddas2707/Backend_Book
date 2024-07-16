@@ -8,9 +8,9 @@ app.use(express.json())
 
 app.get('/',(req,res,next)=>{
     res.json({message:'Welcome to ebook apis'})
-    // const error = createHttpError(400,"Something went wrong") 
+    const error = createHttpError(400,"Something went wrong") 
     // here error was created to test whether the global req handler was working or not 
-    // throw error;
+    throw error;
 })
 
 app.use('/api/users',userRouter)
