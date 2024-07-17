@@ -1,5 +1,6 @@
 import express, { NextFunction, Request, Response } from 'express'
 import createHttpError, { HttpError } from 'http-errors';
+import bookRouter from './book/bookRouter';
 import { config } from './config/config';
 import globalErrorHanlder from './middlewares/globalErrorHandlers';
 import userRouter from './user/userRouter';
@@ -14,6 +15,7 @@ app.get('/',(req,res,next)=>{
 })
 
 app.use('/api/users',userRouter)
+app.use('/api/books',bookRouter)
 
 //global error handler
 app.use(globalErrorHanlder);
