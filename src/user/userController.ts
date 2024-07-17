@@ -4,6 +4,7 @@ import bcrypt from 'bcrypt';
 import userModel from "./userModel";
 import {sign} from "jsonwebtoken" 
 import { config } from "../config/config";
+import { User } from "./userTypes";
 
 const createUser = async(req:Request,res:Response,next:NextFunction)=>{
     const {name,email,password} = req.body;
@@ -14,28 +15,45 @@ const createUser = async(req:Request,res:Response,next:NextFunction)=>{
         //return res.json({message:'All fields are req'}) <---- old methods
     }
     //Databse Call
-    const user = await userModel.findOne({email})
-    if(user){
+    try{
+        const user = await userModel.findOne({email})
+        if(user){
         const error = createHttpError(400,"User Alreay Existed with this email")
         return next(error)
+        }
+    }catch(err){
+        return next(createHttpError(500,"Error while getting user"))
     }
+    
 
     //Password ---> hashed password
     const hashedPassword = await bcrypt.hash(password,10) //since hash method returns a promise we need to wrap up in async-await
     // 10 is the salt rounds more --> more security but slows down cpu
-    const newUser = await userModel.create({
-        name,
-        email,
-        password:hashedPassword,
-    })
+    let newUser : User;
+    try{
+        newUser = await userModel.create({
+            name,
+            email,
+            password:hashedPassword,
+        })
+    }catch(err){
+        return next(createHttpError(500,'Error while creating user'))
+    }
+
 
     //token generation jwt
-    const token = sign({sub:newUser._id},config.jwtSecret as string,{expiresIn:'7d'})    //sub property should be user id
+    try{
+    const token = sign({sub:newUser._id},config.jwtSecret as string,{expiresIn:'7d',algorithm:'HS256'}) 
+    //sub property should be user id
     // if u want to add any specific algorithm for encryption then write inside {} after 7d',......
-
-
+    //   {expiresIn:'7d',algorithm:"HS256"}
     //Response
     res.json({accesstoken:token});
+    }
+    catch(err){
+        return next(createHttpError(500,'Error while signing the jwt token'))
+    }
+
 }
 
 export default createUser;
