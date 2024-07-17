@@ -43,12 +43,12 @@ const createUser = async(req:Request,res:Response,next:NextFunction)=>{
 
     //token generation jwt
     try{
-    const token = sign({sub:newUser._id},config.jwtSecret as string,{expiresIn:'7d',algorithm:'HS256'}) 
+     const token = sign({sub:newUser._id},config.jwtSecret as string,{expiresIn:'7d',algorithm:'HS256'}) 
     //sub property should be user id
     // if u want to add any specific algorithm for encryption then write inside {} after 7d',......
     //   {expiresIn:'7d',algorithm:"HS256"}
     //Response
-    res.json({accesstoken:token});
+    res.status(201).json({accesstoken:token});
     }
     catch(err){
         return next(createHttpError(500,'Error while signing the jwt token'))
@@ -56,4 +56,31 @@ const createUser = async(req:Request,res:Response,next:NextFunction)=>{
 
 }
 
-export default createUser;
+const loginUser = async(req:Request,res:Response,next:NextFunction)=>{
+    const {email,password} = req.body;
+    //validation-->fields are empty or not  
+    if(!email || !password){
+        return next(createHttpError(400,'All fields are required'))
+    }
+   
+    try{
+        //validation-->user exists or not
+        const user = await userModel.findOne({email});
+        if(!user){
+            return next(createHttpError(400,'User not Found !!!'))
+        }
+        //To check whether the hashed password matches the hashed database password 
+        const isMatch = await bcrypt.compare(password,user.password) // will return a boolean
+        //incase it didn't match
+        if(!isMatch){
+            return next(createHttpError(400,'Username or Password incorrect !!! '))
+        }  
+        //incase it match
+        const token = sign({sub:user._id},config.jwtSecret as string,{expiresIn:'7d',algorithm:'HS256'}) 
+        res.status(201).json({accessToken:token})  
+
+    }catch(err){
+        return next(createHttpError(500,'Error while getting the user'))
+    }
+}
+export {createUser,loginUser};
