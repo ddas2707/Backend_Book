@@ -36,6 +36,9 @@ const createBook = async(req:Request,res:Response,next:NextFunction)=>{
     //Uplaod Files Ends
 
 
+    //@ts-ignore
+    console.log("UserId",req.userId);
+    
     // creating a new book
     const newBook = await bookModel.create({
         title,
@@ -48,6 +51,7 @@ const createBook = async(req:Request,res:Response,next:NextFunction)=>{
     //deleting temporary files stored in the local storage
     await fs.promises.unlink(filepath)
     await fs.promises.unlink(bookFilePath)
+    
 
     res.status(201).json({id : newBook._id})
 
