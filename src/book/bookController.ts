@@ -62,5 +62,9 @@ const createBook = async(req:Request,res:Response,next:NextFunction)=>{
         return next(createHttpError(500, 'Error while uploading the files') )
     }
 }
+
+const updateBook = async(req:Request,res:Response,next:NextFunction)=>{
+
+}
    
-export {createBook}; 
+export {createBook,updateBook}; 
