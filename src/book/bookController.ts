@@ -31,7 +31,7 @@ const createBook = async(req:Request,res:Response,next:NextFunction)=>{
          resource_type:'raw',
          filename_override:bookFileName,
          folder:'book-pdfs',
-         format:"pdf",
+         format:"pdf", 
     })
     //console.log('bookfileuploadresult',bookFileUploadResult)
     //Uplaod Files Ends
@@ -158,5 +158,41 @@ const getSingleBook = async(req:Request,res:Response,next:NextFunction)=>{
     }
 
 }
+
+const deleteBook  = async(req:Request,res:Response,next:NextFunction)=>{
+    try{
+        const bookId = req.params.bookId;
+        const book = await bookModel.findOne({_id:bookId});
+        if(!book){
+            return next(createHttpError(404,"Book Not found"))
+        } 
+
+        //checking the access
+        const _req = req as AuthRequest;
+        if(book.author.toString() != _req.userId){
+            return next(createHttpError(403,"You cannot update others Book. "))    //403--> u are a loggedin user but donot have the access to these books
+        }
+        const coverFileSplits = book.coverImage.split("/");
+        const coverImagePublicID = coverFileSplits.at(-2)+"/"+coverFileSplits.at(-1)?.split('.').at(-2);
+        await cloudinary.uploader.destroy(coverImagePublicID);
+
+        const bookFileSplits = book.file.split("/");
+        const bookFilePublicId =
+        bookFileSplits.at(-2) + "/" + bookFileSplits.at(-1);
+        console.log("bookFilePublicId", bookFilePublicId);
+        await cloudinary.uploader.destroy(bookFilePublicId,{
+            resource_type:"raw",
+        });
+        await bookModel.deleteOne({_id:bookId});
+
+
+
+        //console.log(coverImagePublicID)
+        //console.log("coverFileSplits",coverFileSplits);
+        return res.sendStatus(204);
+    }catch(err){
+        return next(createHttpError(400,"Something went wrong , Error while deleting the Book"))
+    }
+}
    
-export {createBook,updateBook,listBook,getSingleBook}; 
+export {createBook,updateBook,listBook,getSingleBook,deleteBook}; 
