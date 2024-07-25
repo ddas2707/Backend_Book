@@ -1,7 +1,7 @@
 import  express  from "express";
 import path from 'node:path';
 import multer from "multer";
-import { createBook, updateBook } from "./bookController";
+import { createBook, listBook, updateBook } from "./bookController";
 import authenticate from "../middlewares/authenticate";
 
 const bookRouter = express.Router()
@@ -27,6 +27,8 @@ bookRouter.patch('/:bookId',
     {name:'coverImage',maxCount:1},
     {name:'file',maxCount:1}
 ]),updateBook ) ;
+
+bookRouter.get('/',listBook)
 
 
 export default bookRouter;

@@ -133,5 +133,16 @@ const updateBook = async(req:Request,res:Response,next:NextFunction)=>{
      );
      res.json(updatedBook);
 }
+
+const listBook= async(req:Request,res:Response,next:NextFunction)=>{
+    try{
+        const book = await bookModel.find() // .find use krne per yeh saara database dikayega 
+        //to select , need to use pagination
+        res.json(book);
+    }catch(err){
+        return next(createHttpError(400,"Error while getting a Book"))
+    }
+
+}
    
-export {createBook,updateBook}; 
+export {createBook,updateBook,listBook}; 
