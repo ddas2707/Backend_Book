@@ -135,7 +135,7 @@ const updateBook = async(req:Request,res:Response,next:NextFunction)=>{
 }
 
 const listBook= async(req:Request,res:Response,next:NextFunction)=>{
-    try{
+    try{ 
         const book = await bookModel.find() // .find use krne per yeh saara database dikayega 
         //to select , need to use pagination
         res.json(book);
@@ -144,5 +144,19 @@ const listBook= async(req:Request,res:Response,next:NextFunction)=>{
     }
 
 }
+
+const getSingleBook = async(req:Request,res:Response,next:NextFunction)=>{
+    try{ 
+        const bookId = req.params.bookId;
+        const book = await bookModel.findOne({_id:bookId })
+        if(!book){
+            return next(createHttpError(404,"Book not found"))
+        }
+        res.json(book);
+    }catch(err){
+        return next(createHttpError(500,"Error while searching a Book"))
+    }
+
+}
    
-export {createBook,updateBook,listBook}; 
+export {createBook,updateBook,listBook,getSingleBook}; 
