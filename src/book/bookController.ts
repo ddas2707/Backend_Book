@@ -118,8 +118,20 @@ const updateBook = async(req:Request,res:Response,next:NextFunction)=>{
          completeFileName = uploadResultPdf.secure_url;
          await fs.promises.unlink(bookFilePath);
      }
-
-
+     //if any changes have been done that it is used here 
+     const updatedBook = await bookModel.findOneAndUpdate(
+        {
+            _id:bookId
+        },
+        {
+            title:title,
+            genre:genre,
+            coverImage : completeCoverImage ? completeCoverImage:book.coverImage,
+            file : completeFileName?completeFileName:book.file,
+        },
+        {new:true}
+     );
+     res.json(updatedBook);
 }
    
 export {createBook,updateBook}; 
