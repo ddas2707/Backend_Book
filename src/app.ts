@@ -1,10 +1,14 @@
 import express, { NextFunction, Request, Response } from 'express'
+import cors from 'cors';
 import createHttpError, { HttpError } from 'http-errors';
 import bookRouter from './book/bookRouter';
 import { config } from './config/config';
 import globalErrorHanlder from './middlewares/globalErrorHandlers';
 import userRouter from './user/userRouter';
 const app = express();
+app.use(cors({
+    origin:config.frontendDomain, 
+}));
 app.use(express.json())
 
 app.get('/',(req,res,next)=>{
